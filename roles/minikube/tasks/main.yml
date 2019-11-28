@@ -1,0 +1,45 @@
+---
+# tasks file for master
+- name: Download latest version of minikube
+  get_url:
+      url: https://storage.googleapis.com/minikube/releases/v0.30.0/minikube-linux-amd64
+      dest: /usr/local/bin/minikube
+      mode: 'u=rx,g=rx,o=rx'
+  become: true
+
+- name: Check if minikube is running
+  shell: minikube status
+  register: minikube_status
+  become: true
+  ignore_errors: yes
+  tags:
+    - mini_service
+
+- name: Start minikube with --vm-driver=none
+  shell: minikube start --vm-driver=none
+  become: true
+  when: minikube_status is failed
+    - mini_service
+
+- name: Start minikube dashboard p1
+  shell: minikube dashboard &
+  become: true
+  tags:
+    - dashboard
+    - mini_service
+
+- name: Start minikube dashboard p2
+  shell: kubectl proxy --address='0.0.0.0' -p 9999 --accept-hosts '.*'
+  async: 2592000
+  poll: 0
+  become: true
+  tags:
+    - proxy
+    - mini_service
+
+- name: Access dashboard
+  debug:
+    msg: "http://{{ hostvars[groups['minikubes'][0]].ansible_all_ipv4_addresses[2] }}:9999/api/v1/namespaces/kube-system/services/http:kubernetes-dashboard:/proxy/#!/overview?namespace=_all"
+  tags:
+    - print
+    - mini_service

@@ -1,0 +1,40 @@
+---
+- name: Reset Kubernetes
+  shell: echo $(kubeadm reset && echo 'true')
+
+- name: Remove docker images
+  shell: echo $(docker rmi --force $(docker images --all -q) && echo 'true')
+  become: true
+
+- name: Update apt
+  apt:
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+  become: true
+
+- name: Purge installed packages
+  apt:
+    name: kubelet,kubeadm,kubectl,docker-ce
+    state: absent
+    purge: yes
+    autoremove: yes
+    force: yes
+  become: true
+
+- name: Remove pod logging
+  shell: rm -rf /var/log/pods/*
+  become: True
+
+- name: Remove minikube
+  file:
+    path: /usr/local/bin/minikube
+    state: absent
+  become: True
+
+- name: Reboot
+  reboot:
+      reboot_timeout: 90
+      msg: Reboot initiated by Ansible
+      connect_timeout: 90
+  become: True

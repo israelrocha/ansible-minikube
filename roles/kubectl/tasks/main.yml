@@ -1,0 +1,30 @@
+---
+- name: Add the kubectl apt key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+  become: true
+
+- name: Add kubectl repository
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes
+  become: true
+
+- name: Upgrade all packages to the latest version
+  apt:
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+  become: true
+
+- name: Install kubectl
+  apt:
+    name: kubectl
+    state: latest
+  become: true
+
+- name: Add autocompletion to bash
+  shell: echo "source <(kubectl completion bash)" >> ~/.bashrc
+  become: true

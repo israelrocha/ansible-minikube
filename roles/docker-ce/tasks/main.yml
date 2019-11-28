@@ -1,0 +1,39 @@
+---
+# tasks file for master
+- name: Install Docker pre-requisites
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+  become: true
+
+- name: Add the Docker apt key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  become: true
+
+- name: Add the Docker repository
+  apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+  become: true
+
+- name: Upgrade all packages to the latest version
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install Docker
+  apt:
+    name: docker-ce=18.06.1~ce~3-0~ubuntu
+  become: true
+
+- name: Make sure that the docker engine is started
+  service:
+    name: docker
+    state: started
