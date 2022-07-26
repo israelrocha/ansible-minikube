@@ -2,7 +2,7 @@
 # tasks file for master
 - name: Download latest version of minikube
   get_url:
-      url: https://storage.googleapis.com/minikube/releases/v0.30.0/minikube-linux-amd64
+      url: https://storage.googleapis.com/minikube/releases/v1.26.0/minikube-linux-amd64
       dest: /usr/local/bin/minikube
       mode: 'u=rx,g=rx,o=rx'
   become: true
@@ -11,7 +11,7 @@
   shell: minikube status
   register: minikube_status
   become: true
-  ignore_errors: yes
+  ignore_errors: true
   tags:
     - mini_service
 
